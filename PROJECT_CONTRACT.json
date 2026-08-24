@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "metrics": {
+    "production_loc": 2311,
+    "production_files": 33,
+    "production_packages": 12,
+    "test_files": 11,
+    "production_functions": 175,
+    "decision_points": 291
+  },
+  "persistence": {
+    "module": "go.etcd.io/bbolt",
+    "entities": [
+      "VideoAsset",
+      "PreviewSpec",
+      "RenderTask",
+      "ActivityEvent",
+      "LibrarySnapshot"
+    ],
+    "reopen_test": "TestPersistenceSurvivesReopen"
+  },
+  "workflows": [
+    {
+      "steps": [
+        "register or import a video asset",
+        "choose crop and preview settings",
+        "queue and generate a slow-motion task",
+        "inspect the ready result and activity history"
+      ],
+      "test": "TestWorkflowOne"
+    },
+    {
+      "steps": [
+        "parse a deterministic asset manifest",
+        "normalize metadata and index matching assets",
+        "draft a preview with interpolation guidance",
+        "query the review queue and ranked previews"
+      ],
+      "test": "TestWorkflowTwo"
+    },
+    {
+      "steps": [
+        "persist assets and preview configuration",
+        "close the embedded database cleanly",
+        "reopen the database from the same path",
+        "reload the stored entity and verify its title"
+      ],
+      "test": "TestPersistenceSurvivesReopen"
+    }
+  ]
+}
