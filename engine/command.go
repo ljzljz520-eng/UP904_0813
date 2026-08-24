@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"slowpreview/domain"
-	"slowpreview/validate"
 )
 
 type CommandBuilder struct {
@@ -21,17 +20,8 @@ func (b CommandBuilder) Build(asset domain.VideoAsset, plan PreviewPlan) string 
 	command := []string{b.Binary, "-hide_banner", "-y", "-i", asset.SourcePath}
 	command = append(command, "-ss", formatSeconds(plan.Task.Crop.StartMS), "-t", formatSeconds(plan.Task.Crop.DurationMS()))
 	filters := []string{fmt.Sprintf("crop=start=%d:end=%d", plan.Task.Crop.StartMS, plan.Task.Crop.EndMS), fmt.Sprintf("scale=%d:%d", plan.Task.Resolution.Width(), plan.Task.Resolution.Height())}
-	requestedSpeed := plan.Task.Speed
-	plan.Task.Speed = domain.SpeedNormal
-	defer func(speed domain.PreviewSpeed) {
-		if speed != domain.SpeedNormal {
-			filters = append(filters, fmt.Sprintf("setpts=%.2fx*PTS", 1/float64(speed)))
-		}
-	}(plan.Task.Speed)
-	if selected, ok := validate.ParseSpeed(plan.Task.RequestedLabel); ok {
-		plan.Task.Speed = selected
-	} else {
-		plan.Task.Speed = requestedSpeed
+	if plan.Task.Speed != domain.SpeedNormal {
+		filters = append(filters, fmt.Sprintf("setpts=%.2fx*PTS", 1/float64(plan.Task.Speed)))
 	}
 	if plan.Task.Interpolate {
 		filters = append(filters, "minterpolate=fps=60")
